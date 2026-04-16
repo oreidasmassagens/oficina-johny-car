@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oficina Antônio Agatiello</title>
+    <style>
+        :root { --amarelo: #FFD700; --preto: #0a0a0a; --cinza: #1a1a1a; }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--preto); color: white; overflow-x: hidden; }
+
+        /* --- PERFIL COMPACTO (SALVA TUDO) --- */
+        .perfil-container {
+            background: #151515; 
+            padding: 15px 25px; 
+            display: flex; 
+            align-items: center; 
+            gap: 20px;
+            border-bottom: 2px solid var(--amarelo);
+        }
+        .foto-box { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        #foto-preview { 
+            width: 65px; height: 65px; 
+            border-radius: 50%; 
+            border: 2px solid var(--amarelo); object-fit: cover; 
+        }
+        .btn-foto { 
+            background: var(--amarelo); color: black; padding: 4px 8px; 
+            cursor: pointer; font-size: 11px; font-weight: bold; border-radius: 3px;
+            text-transform: uppercase;
+        }
+        input[type="file"] { display: none; }
+        
+        #nome-user { 
+            background: transparent; border: none; border-bottom: 2px solid var(--amarelo); 
+            color: white; font-size: 1.4rem; outline: none; padding: 5px; width: 280px;
+        }
+
+        /* --- CARRINHO --- */
+        .cart-icon { position: fixed; top: 15px; right: 20px; background: var(--amarelo); color: black; 
+                     padding: 12px 18px; border-radius: 50px; cursor: pointer; z-index: 99; font-weight: bold; }
+
+        #modal-cart { 
+            display: none; position: fixed; top: 0; left: 0; width: 350px; height: 100%;
+            background: #111; border-right: 3px solid var(--amarelo); z-index: 101; 
+            padding: 40px 20px; box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+        }
+
+        /* --- BANNER P&B --- */
+        header { 
+            height: 60vh; display: flex; align-items: center; justify-content: center; 
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover; background-position: center; filter: grayscale(100%); text-align: center; 
+        }
+
+        .nome-oficina { font-size: 1.8rem; color: var(--amarelo); font-weight: bold; text-transform: uppercase; margin-top: 10px; }
+
+        .item-carrinho { display: flex; justify-content: space-between; background: #222; padding: 12px; margin-bottom: 10px; border-radius: 5px; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; }
+    </style>
+</head>
+<body>
+
+    <div class="perfil-container">
+        <div class="foto-box">
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" id="foto-preview">
+            <label for="input-foto" class="btn-foto">FOTO MUDAR</label>
+            <input type="file" id="input-foto" accept="image/*">
+        </div>
+        <input type="text" id="nome-user" placeholder="Digite seu nome...">
+    </div>
+
+    <div class="cart-icon" onclick="toggleCart()">🛒 <span id="cart-count">0</span></div>
+
+    <header>
+        <div>
+            <h1 style="font-size: 3.5rem; text-transform: uppercase;">OFICINA <span style="color:var(--amarelo)">SÉRIA</span></h1>
+            <div style="margin-top: 20px;">
+                <p class="nome-oficina">Antônio Agatiello</p>
+                <p style="color: #bbb; letter-spacing: 1px;">BIRIGUI - SP</p>
+                <p style="color: #888; margin-top: 10px;">Segunda a Sexta: 08:00 às 18:00</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+    
+    <div id="modal-cart">
+        <span onclick="toggleCart()" style="position:absolute; top:15px; right:20px; font-size:28px; color:var(--amarelo); cursor:pointer;">&times;</span>
+        <h2 style="color:var(--amarelo); margin-bottom: 30px; text-transform: uppercase;">Meus Pedidos</h2>
+        <div id="lista-itens"></div>
+    </div>
+
+    <script>
+        const nInput = document.getElementById('nome-user');
+        const fInput = document.getElementById('input-foto');
+        const fPreview = document.getElementById('foto-preview');
+
+        // Carregar do Banco de Dados do Navegador
+        nInput.value = localStorage.getItem('userName') || '';
+        if(localStorage.getItem('userPhoto')) fPreview.src = localStorage.getItem('userPhoto');
+
+        // Salvar Nome
+        nInput.oninput = () => localStorage.setItem('userName', nInput.value);
+
+        // Salvar Foto
+        fInput.onchange = () => {
+            const r = new FileReader();
+            r.onload = () => { 
+                localStorage.setItem('userPhoto', r.result); 
+                fPreview.src = r.result; 
+            };
+            r.readAsDataURL(fInput.files[0]);
+        };
+
+        // Sistema do Carrinho
+        let dados = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
+        function att() {
+            document.getElementById('cart-count').innerText = dados.length;
+            const l = document.getElementById('lista-itens');
+            l.innerHTML = dados.length ? '' : '<p style="color: #444;">Vazio</p>';
+            dados.forEach((it, i) => {
+                l.innerHTML += `<div class="item-carrinho"><span>${it.n}</span><button onclick="rem(${i})" style="color: red; background: none; border: none; cursor: pointer;">X</button></div>`;
+            });
+        }
+        function rem(i) { 
+            dados.splice(i, 1); 
+            localStorage.setItem('meuCarrinho', JSON.stringify(dados)); 
+            att(); 
+        }
+        function toggleCart() {
+            const m = document.getElementById('modal-cart');
+            const o = document.getElementById('overlay');
+            const ab = m.style.display === 'block';
+            m.style.display = ab ? 'none' : 'block';
+            o.style.display = ab ? 'none' : 'block';
+        }
+        att();
+    </script>
+</body>
+</html>

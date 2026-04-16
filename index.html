@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oficina Antônio Agatiello</title>
+    <title>Johny Car - Birigui</title>
     <style>
         :root { --amarelo: #FFD700; --preto: #0a0a0a; --cinza: #1a1a1a; }
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--preto); color: white; overflow-x: hidden; }
 
-        /* --- PERFIL COMPACTO (SALVA TUDO) --- */
+        /* --- PERFIL COMPACTO --- */
         .perfil-container {
             background: #151515; 
             padding: 15px 25px; 
@@ -47,14 +47,15 @@
             padding: 40px 20px; box-shadow: 10px 0 30px rgba(0,0,0,0.8);
         }
 
-        /* --- BANNER P&B --- */
+        /* --- BANNER JOHNY CAR --- */
         header { 
             height: 60vh; display: flex; align-items: center; justify-content: center; 
             background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1200&q=80');
             background-size: cover; background-position: center; filter: grayscale(100%); text-align: center; 
         }
 
-        .nome-oficina { font-size: 1.8rem; color: var(--amarelo); font-weight: bold; text-transform: uppercase; margin-top: 10px; }
+        .nome-principal { font-size: 4.5rem; text-transform: uppercase; line-height: 0.9; }
+        .subtitulo { font-size: 1.8rem; color: var(--amarelo); font-weight: bold; text-transform: uppercase; margin-top: 15px; }
 
         .item-carrinho { display: flex; justify-content: space-between; background: #222; padding: 12px; margin-bottom: 10px; border-radius: 5px; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; }
@@ -75,10 +76,10 @@
 
     <header>
         <div>
-            <h1 style="font-size: 3.5rem; text-transform: uppercase;">OFICINA <span style="color:var(--amarelo)">SÉRIA</span></h1>
-            <div style="margin-top: 20px;">
-                <p class="nome-oficina">Antônio Agatiello</p>
-                <p style="color: #bbb; letter-spacing: 1px;">BIRIGUI - SP</p>
+            <h1 class="nome-principal">JOHNY <span style="color:var(--amarelo)">CAR</span></h1>
+            <div style="margin-top: 10px;">
+                <p class="subtitulo">Antônio Agatielo</p>
+                <p style="color: #bbb; letter-spacing: 2px; margin-top: 5px;">BIRIGUI - SP</p>
                 <p style="color: #888; margin-top: 10px;">Segunda a Sexta: 08:00 às 18:00</p>
             </div>
         </div>
@@ -88,7 +89,7 @@
     
     <div id="modal-cart">
         <span onclick="toggleCart()" style="position:absolute; top:15px; right:20px; font-size:28px; color:var(--amarelo); cursor:pointer;">&times;</span>
-        <h2 style="color:var(--amarelo); margin-bottom: 30px; text-transform: uppercase;">Meus Pedidos</h2>
+        <h2 style="color:var(--amarelo); margin-bottom: 30px; text-transform: uppercase;">Serviços Salvos</h2>
         <div id="lista-itens"></div>
     </div>
 
@@ -97,14 +98,12 @@
         const fInput = document.getElementById('input-foto');
         const fPreview = document.getElementById('foto-preview');
 
-        // Carregar do Banco de Dados do Navegador
+        // Sistema de Salvamento
         nInput.value = localStorage.getItem('userName') || '';
         if(localStorage.getItem('userPhoto')) fPreview.src = localStorage.getItem('userPhoto');
 
-        // Salvar Nome
         nInput.oninput = () => localStorage.setItem('userName', nInput.value);
 
-        // Salvar Foto
         fInput.onchange = () => {
             const r = new FileReader();
             r.onload = () => { 
@@ -114,7 +113,6 @@
             r.readAsDataURL(fInput.files[0]);
         };
 
-        // Sistema do Carrinho
         let dados = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
         function att() {
             document.getElementById('cart-count').innerText = dados.length;
